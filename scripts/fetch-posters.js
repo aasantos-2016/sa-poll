@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-const path = require('path');
-const fs = require('fs');
-const XLSX = require('xlsx');
-const fetchFn = globalThis.fetch
-  ? globalThis.fetch.bind(globalThis)
-  : (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+import path from 'node:path';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import XLSX from 'xlsx';
+
+const fetchFn = globalThis.fetch?.bind(globalThis);
 
 const API_KEY = process.env.TMDB_API_KEY;
 if (!API_KEY) {
@@ -12,7 +12,13 @@ if (!API_KEY) {
   process.exit(1);
 }
 
-const WORKBOOK_PATH = path.join(__dirname, '../data/filmes_natal_BR_40-50_RT.xlsx');
+if (!fetchFn) {
+  console.error('Este script requer suporte a fetch nativo no Node.js 20+.');
+  process.exit(1);
+}
+
+const currentDirPath = path.dirname(fileURLToPath(import.meta.url));
+const WORKBOOK_PATH = path.join(currentDirPath, '../data/filmes_natal_BR_40-50_RT.xlsx');
 if (!fs.existsSync(WORKBOOK_PATH)) {
   console.error(`Arquivo não encontrado: ${WORKBOOK_PATH}`);
   process.exit(1);
@@ -86,7 +92,7 @@ async function fetchPoster(title, year) {
     return `${TMDB_IMAGE_BASE}${firstResult.poster_path}`;
   }
 
-  return null;
+  return undefined;
 }
 
 (async () => {
@@ -121,7 +127,6 @@ async function fetchPoster(title, year) {
       console.error(`Erro ao buscar pôster de ${lookupTitle}:`, error.message);
     }
 
-    // Pequena pausa para evitar throttling em chamadas consecutivas.
     await new Promise((resolve) => setTimeout(resolve, 350));
   }
 

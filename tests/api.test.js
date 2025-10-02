@@ -1,8 +1,10 @@
+import { beforeEach, afterAll, describe, expect, test } from 'vitest';
+import request from 'supertest';
+
 process.env.DB_PATH = ':memory:';
 
-const request = require('supertest');
-const app = require('../server/index');
-const { resetDatabase, closeDatabase, getDb } = require('../server/db');
+const { default: app } = await import('../server/index.js');
+const { resetDatabase, closeDatabase, getDb } = await import('../server/db.js');
 
 beforeEach(() => {
   resetDatabase();

@@ -2,14 +2,14 @@ const root = document.getElementById('app');
 
 const state = {
   view: 'welcome',
-  participantId: null,
+  participantId: undefined,
   participantName: '',
   movies: [],
   currentIndex: 0,
-  currentAnswers: { watched: null, remembered: null },
+  currentAnswers: { watched: undefined, remembered: undefined },
   responses: {},
   loading: false,
-  error: null,
+  error: undefined,
 };
 
 function escapeHtml(value) {
@@ -56,20 +56,20 @@ function setState(patch) {
 }
 
 function resetAnswers() {
-  state.currentAnswers = { watched: null, remembered: null };
+  state.currentAnswers = { watched: undefined, remembered: undefined };
 }
 
 function welcomeTemplate() {
   return `
     <section class="card">
       <span class="pill">Pesquisa de Filmes</span>
-      <h1>Ajude-nos a descobrir os filmes mais assistidos</h1>
-      <p>Vamos mostrar uma lista especial de filmes. Conte se você já assistiu e se ainda se lembra deles. É rapidinho!</p>
+      <h1>Sessão Aleatória - Viu Não Viu Natalino!</h1>
+      <p>Vou te mostrar uma lista de filmes de Natal. Conte se você já assistiu e se ainda se lembra deles. É rapidinho!</p>
       ${state.error ? `<div class="error">${state.error}</div>` : ''}
       <form id="welcome-form" autocomplete="off">
         <div>
           <label for="participant-name">Qual é o seu nome?</label>
-          <input id="participant-name" name="participant-name" type="text" placeholder="ex.: Juliana" maxlength="60" required ${state.loading ? 'disabled' : ''} />
+          <input id="participant-name" name="participant-name" type="text" placeholder="ex.: Eustáquio" maxlength="60" required ${state.loading ? 'disabled' : ''} />
         </div>
         <button class="button" type="submit" ${state.loading ? 'disabled' : ''}>${state.loading ? 'Carregando…' : 'Começar pesquisa'}</button>
       </form>
@@ -83,7 +83,8 @@ function questionTemplate() {
   const total = state.movies.length;
   const step = state.currentIndex + 1;
   const progress = Math.round(((step - 1) / total) * 100);
-  const nextDisabled = state.loading || state.currentAnswers.watched === null || state.currentAnswers.remembered === null;
+  const nextDisabled =
+    state.loading || state.currentAnswers.watched === undefined || state.currentAnswers.remembered === undefined;
   const safeTitle = escapeHtml(String(movie.title));
   const safeYear = movie.year ? Number(movie.year) : '';
   const memoryDisabled = state.currentAnswers.watched === false;
@@ -200,7 +201,7 @@ function bindWelcomeEvents() {
       return;
     }
 
-    setState({ loading: true, error: null });
+    setState({ loading: true, error: undefined });
 
     try {
       const participantId = await createParticipant(name);
@@ -220,7 +221,7 @@ function bindWelcomeEvents() {
         responses: {},
         loading: false,
         view: 'question',
-        error: null,
+        error: undefined,
       });
       resetAnswers();
       render();
@@ -250,7 +251,7 @@ function bindQuestionEvents() {
         if (value === false) {
           state.currentAnswers.remembered = false;
         } else {
-          state.currentAnswers.remembered = null;
+          state.currentAnswers.remembered = undefined;
         }
       } else if (question === 'remembered') {
         state.currentAnswers.remembered = value;
@@ -261,13 +262,13 @@ function bindQuestionEvents() {
 
   document.getElementById('next-button')?.addEventListener('click', async () => {
     if (state.loading) return;
-    if (state.currentAnswers.watched === null || state.currentAnswers.remembered === null) {
+    if (state.currentAnswers.watched === undefined || state.currentAnswers.remembered === undefined) {
       return;
     }
 
     const movie = state.movies[state.currentIndex];
 
-    setState({ loading: true, error: null });
+  setState({ loading: true, error: undefined });
 
     try {
       await submitResponse({
@@ -285,14 +286,14 @@ function bindQuestionEvents() {
         setState({
           view: 'complete',
           loading: false,
-          error: null,
+          error: undefined,
         });
         return;
       }
 
       const nextIndex = state.currentIndex + 1;
       resetAnswers();
-      setState({ currentIndex: nextIndex, loading: false, error: null });
+      setState({ currentIndex: nextIndex, loading: false, error: undefined });
     } catch (error) {
       console.error(error);
       const message = error instanceof Error && error.message ? error.message : 'Não foi possível salvar a resposta. Verifique sua conexão e tente novamente.';

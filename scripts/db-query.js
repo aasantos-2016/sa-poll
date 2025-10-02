@@ -1,8 +1,10 @@
 #!/usr/bin/env node
-const path = require('path');
-const Database = require('better-sqlite3');
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import Database from 'better-sqlite3';
 
-const DEFAULT_DB_PATH = path.join(__dirname, '../data/poll.db');
+const currentDirPath = path.dirname(fileURLToPath(import.meta.url));
+const DEFAULT_DB_PATH = path.join(currentDirPath, '../data/poll.db');
 const dbPathEnv = process.env.DB_PATH ? path.resolve(process.cwd(), process.env.DB_PATH) : DEFAULT_DB_PATH;
 
 const [, , ...rest] = process.argv;

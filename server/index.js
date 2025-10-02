@@ -1,10 +1,12 @@
-const express = require('express');
-const path = require('path');
+import express from 'express';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const { getDb } = require('./db');
+import { getDb } from './db.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const currentFilePath = fileURLToPath(import.meta.url);
 const db = getDb();
 
 const statements = {
@@ -27,7 +29,7 @@ const statements = {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(path.dirname(currentFilePath), '../public')));
 
 app.get('/api/movies', (_req, res) => {
   const movies = statements.listMovies.all();
@@ -84,10 +86,10 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-if (require.main === module) {
+if (process.argv[1] === currentFilePath) {
   app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
   });
 }
 
-module.exports = app;
+export default app;

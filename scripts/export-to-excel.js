@@ -1,11 +1,13 @@
 #!/usr/bin/env node
-const path = require('path');
-const fs = require('fs');
-const Database = require('better-sqlite3');
-const XLSX = require('xlsx');
+import path from 'node:path';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import Database from 'better-sqlite3';
+import XLSX from 'xlsx';
 
-const DEFAULT_DB_PATH = path.join(__dirname, '../data/poll.db');
-const OUTPUT_PATH = path.join(__dirname, '../data/poll-export.xlsx');
+const currentDirPath = path.dirname(fileURLToPath(import.meta.url));
+const DEFAULT_DB_PATH = path.join(currentDirPath, '../data/poll.db');
+const OUTPUT_PATH = path.join(currentDirPath, '../data/poll-export.xlsx');
 const DB_PATH = process.env.DB_PATH ? path.resolve(process.cwd(), process.env.DB_PATH) : DEFAULT_DB_PATH;
 
 if (!fs.existsSync(DB_PATH)) {

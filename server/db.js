@@ -1,16 +1,18 @@
-const path = require('path');
-const fs = require('fs');
-const Database = require('better-sqlite3');
-const XLSX = require('xlsx');
+import path from 'node:path';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import Database from 'better-sqlite3';
+import XLSX from 'xlsx';
 
-const DEFAULT_DB_PATH = path.join(__dirname, '../data/poll.db');
+const currentDirPath = path.dirname(fileURLToPath(import.meta.url));
+const DEFAULT_DB_PATH = path.join(currentDirPath, '../data/poll.db');
 const rawDbPath = process.env.DB_PATH || DEFAULT_DB_PATH;
 const isInMemory = rawDbPath === ':memory:' || rawDbPath.startsWith('file:');
 const DB_PATH = isInMemory ? rawDbPath : path.resolve(process.cwd(), rawDbPath);
-const MOVIES_WORKBOOK_PATH = path.join(__dirname, '../data/filmes_natal_BR_40-50_RT.xlsx');
+const MOVIES_WORKBOOK_PATH = path.join(currentDirPath, '../data/filmes_natal_BR_40-50_RT.xlsx');
 
-let cachedMovies = null;
-let cachedWorkbookStat = null;
+let cachedMovies;
+let cachedWorkbookStat;
 
 let db;
 
@@ -131,7 +133,7 @@ function closeDatabase() {
   }
 
   db.close();
-  db = null;
+  db = undefined;
 }
 
 function loadMoviesFromWorkbook() {
@@ -152,7 +154,7 @@ function loadMoviesFromWorkbook() {
   }
 
   const sheet = workbook.Sheets[firstSheetName];
-  const rows = XLSX.utils.sheet_to_json(sheet, { defval: null });
+  const rows = XLSX.utils.sheet_to_json(sheet, { defval: undefined });
 
   const parsed = rows
     .map((row, index) => {
@@ -161,7 +163,7 @@ function loadMoviesFromWorkbook() {
       const posterUrl = normalizePosterUrl(row['Poster URL'] || row['Poster']);
 
       if (!portugueseTitle) {
-        return null;
+        return undefined;
       }
 
       return {
@@ -194,7 +196,7 @@ function asTrimmedString(value) {
 function normalizeYear(value) {
   const yearNumber = Number.parseInt(value, 10);
   if (Number.isNaN(yearNumber)) {
-    return null;
+    return undefined;
   }
   return yearNumber;
 }
@@ -202,14 +204,14 @@ function normalizeYear(value) {
 function normalizePosterUrl(value) {
   const url = asTrimmedString(value || '');
   if (!url) {
-    return null;
+    return undefined;
   }
 
   try {
     const parsed = new URL(url);
     return parsed.toString();
   } catch (error) {
-    return null;
+    return undefined;
   }
 }
 
@@ -221,9 +223,6 @@ function ensureMoviePosterColumn() {
   }
 }
 
-module.exports = {
-  initDatabase,
-  resetDatabase,
-  getDb: () => initDatabase(),
-  closeDatabase,
-};
+const getDb = () => initDatabase();
+
+export { initDatabase, resetDatabase, getDb, closeDatabase };

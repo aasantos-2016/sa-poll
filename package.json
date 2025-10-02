@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "Simple movie poll web app",
   "main": "server/index.js",
+  "type": "module",
   "scripts": {
     "dev": "nodemon server/index.js",
     "start": "node server/index.js",
-    "test": "jest --runInBand",
+    "test": "vitest run",
     "db:query": "node scripts/db-query.js",
     "posters:fetch": "node scripts/fetch-posters.js",
     "export:excel": "node scripts/export-to-excel.js"
@@ -20,14 +21,8 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
     "nodemon": "^3.1.0",
-    "supertest": "^6.3.3"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "roots": [
-      "<rootDir>/tests"
-    ]
+    "supertest": "^6.3.3",
+    "vitest": "^2.0.5"
   }
 }
